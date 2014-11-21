@@ -1,0 +1,34 @@
+#!/bin/bash
+################
+# Generates awk code for the base URL information of a combined log.  The output of this script
+# can be used directly with clf2elf
+URL="${1}"
+
+if [ -z "${1}" ]; then
+    echo "Usage: ${0} <url>"
+    echo ""
+    echo "Where url is of the form: [<protocol>://]host[:<port>]."
+    echo ""
+    echo "The protocol defaults to http, port defaults to 80 for http"
+    echo "and 443 for https."
+    echo ""
+    echo "The output of this script can be used directly with"
+    echo "clf2elf - i.e. 'clf2elf \$(${0} <url>)'."
+    exit 1
+fi
+
+DEF_PORT_http="80"
+DEF_PORT_https="443"
+
+PROTO="$(echo "${URL}" | sed -En 's|^([^:]+)://.*$|\1|p')"
+PROTO="${PROTO:-http}"
+DEF_PORT="DEF_PORT_${PROTO}"
+PORT="$(echo "${URL}" | sed -En 's|^.*:([0-9]+)(/.*)?$|\1|p')"
+PORT="${PORT:-${!DEF_PORT}}"
+HOST="$(echo "${URL}" | sed -En 's|^([^:]+://)?([^:/]+)([:/].*)?$|\2|p')"
+
+echo -n "{ "
+[ -n "${PROTO}" ] && echo -n "FIELDS[\"cs-uri-scheme\"] = \"${PROTO}\"; "
+[ -n "${HOST}" ] && echo -n "FIELDS[\"cs-host\"] = \"${HOST}\"; "
+[ -n "${PORT}" ] && echo -n "FIELDS[\"cs-uri-port\"] = \"${PORT}\"; "
+echo "}"

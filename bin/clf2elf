@@ -22,13 +22,14 @@ while (($#)); do
     if [ -f "${1}" ]; then GAWK_APPEND="${GAWK_APPEND}$(cat "${1}"; echo "")"; shift; continue; fi
 
     if [ "${1:0:1}" != "/" -a "${1:0:1}" != "." ]; then
-        OIFS="${IFS}"; IFS=":"
+        OIFS="${IFS}"; export IFS=":"
         for j in ${CLF2ELF_PATH}:${CLF2ELF_SHARE}; do
+            if [ "${j:0:1}" == ":" ]; then j="${j:1}"; fi
             if [ -n "${j}" -a -f "${j}/${1}" ]; then
                 GAWK_APPEND="${GAWK_APPEND}$(cat "${j}/${1}"; echo "")"; shift; IFS="${OIFS}"; continue 2
             fi
         done
-        IFS="${OIFS}"
+        export IFS="${OIFS}"
     fi
     
     GAWK_APPEND="${GAWK_APPEND}${1}$(echo "")"
@@ -173,7 +174,8 @@ BEGIN {
     FIELDS["cs-uri-path"] = p[1]
     if (length(p[2]) > 0) { FIELDS["cs-uri-query"] = "?" p[2]; }
 }
-EOF)
+EOF
+)
 ${GAWK_APPEND}
 $(cat << EOF
 
@@ -207,4 +209,5 @@ Print out the values
     }
 }
 
-EOF)" ${FILE}
+EOF
+)" ${FILE}

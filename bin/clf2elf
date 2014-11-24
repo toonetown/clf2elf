@@ -193,19 +193,14 @@ function print_headers(     now) {
         print "#Remark: Generated on " strftime("%c", now, 1)
     }
 }
-Print out the values
+# Print out the values
 {
     if (!SKIP_OUT) {
         if (length(OUTPUT) == 0) { print_headers(); }
-
-        if (!SKIP_OUT) {
-            for (i in OUTPUT) {
-                f = OUTPUT[i]; printf (i > 1 ? " " : "") "%s", ((f in FIELDS) ? FIELDS[f] : "-");
-            }
-            printf "%s", ORS
-        } else {
-            print "SKIPPING"
+        for (i = 1; i <= length(OUTPUT); i++) {
+            f = OUTPUT[i]; printf (i > 1 ? " " : "") "%s", ((f in FIELDS) ? FIELDS[f] : "-");
         }
+        printf "%s", ORS
     }
 }
 
